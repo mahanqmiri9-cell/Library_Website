@@ -10,6 +10,6 @@ namespace LibraryWebsite.Api.Services
         List<User> GetAll();
         bool Delete(int id);
         void Update(User user);
-        void Update(User user, int id);
+
     }
 }
