@@ -12,28 +12,28 @@ namespace LibraryWebsite.Model
         public int Id { get; set; }
 
         [Required(ErrorMessage = "FullName is required")]
-        [MaxLength(200)]
+
         public string FullName { get; set; }
 
         [Required(ErrorMessage = "Username is required")]
-        [MaxLength(100)]
+
         public string Username { get; set; }
 
         [Required(ErrorMessage = "Password is required")]
-        [MaxLength(500)]
+
         public string PasswordHash { get; set; }
 
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid Email")]
-        [MaxLength(200)]
+
         public string Email { get; set; }
 
-        [MaxLength(20)]
+
         public string PhoneNumber { get; set; }
 
         public bool IsActive { get; set; } = false;
 
-        [MaxLength(10)]
+
         public string Role { get; set; } = "user";
 
         public DateTime CreatedAt { get; set; }
