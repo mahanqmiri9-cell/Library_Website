@@ -12,7 +12,7 @@ namespace LibraryWebsite.Repository
         public interface IUserRepository
         { 
             bool Add(User user);
-            DbSet<User> GetAll();
+            List<User> GetAll();
             User GetById (int id);
             void Update(User user);
             bool DeleteById(int id);

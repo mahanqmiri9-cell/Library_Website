@@ -1,5 +1,6 @@
 ﻿using LibraryWebsite.Api.Services;
 using LibraryWebsite.Model;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
 namespace LibraryWebsite.Api.Controllers
@@ -38,6 +39,7 @@ namespace LibraryWebsite.Api.Controllers
         }
 
 
+
         [HttpGet]
         public IActionResult GetAll()
         {
@@ -64,5 +66,30 @@ namespace LibraryWebsite.Api.Controllers
 
             return BadRequest("failed");
         }
+
+
+        public class LoginRequest
+        {
+            public string Username { get; set; }
+            public string Password { get; set; }
+        }
+
+
+
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] LoginRequest request)
+        {
+            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+                return BadRequest("Username and Password are required");
+
+            bool result = _service.Login(request.Username, request.Password);
+            if (result)
+                return Ok("Login successful");
+
+            return Unauthorized("Invalid username or password");
+        }
+
+
+
     }
 }

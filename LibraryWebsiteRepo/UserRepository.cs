@@ -19,22 +19,31 @@ namespace LibraryWebsite.Repository
 
         public bool Add(User user)
         {
-            return true;
+            _context.Users.Add(user);
+            return _context.SaveChanges() > 0;
         }
-        public DbSet<User> GetAll()
+        public List<User> GetAll()
         {
-            return null;
+            return _context.Users.ToList();
         }
-        public User GetById(int d)
+        public User GetById(int id)
         {
-            return null;
+            return _context.Users.FirstOrDefault(user => user.Id == id);
         }
         public void Update(User user)
         { 
+            _context.SaveChanges(); //*incorrect*
         }
         public bool DeleteById(int id)
         {
-            return false;
+            var user = _context.Users.FirstOrDefault(user => user.Id == id);
+            if (user == null)
+            {
+                return false;
+            }
+
+            _context.Users.Remove(user);
+            return _context.SaveChanges() > 0;
         }
     }
 }
