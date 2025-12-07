@@ -1,9 +1,9 @@
-﻿using LibraryWebsite.Api.Services;
+﻿using LibraryWebsite.Service;
 using LibraryWebsite.Model;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 
-namespace LibraryWebsite.Api.Controllers
+namespace LibraryWebsite.API
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -18,9 +18,9 @@ namespace LibraryWebsite.Api.Controllers
 
 
         [HttpPost]
-        public IActionResult Create(User user)
+        public IActionResult Creat(User user)
         {
-            bool result = _service.Create(user);
+            bool result = _service.Add(user);
             if (result)
                 return Ok("User created successfully");
 
@@ -31,7 +31,7 @@ namespace LibraryWebsite.Api.Controllers
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
-            var user = _service.Get(id);
+            var user = _service.GetById(id);
             if (user == null)
                 return NotFound("User not found");
 

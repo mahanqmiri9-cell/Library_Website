@@ -24,11 +24,11 @@ namespace LibraryWebsite.Repository
         }
         public List<User> GetAll()
         {
-            return _context.Users.ToList();
+             return _context.Users.ToList();
         }
         public User GetById(int id)
         {
-            return _context.Users.FirstOrDefault(user => user.Id == id);
+            return _context.Users.FirstOrDefault(user => user.Id == id) ;
         }
         public void Update(User user)
         { 

@@ -21,6 +21,7 @@ namespace LibraryWebsite.Repository
 
                 entity.HasKey(u => u.Id);
 
+
                 entity.Property(u => u.FullName)
                       .IsRequired()
                       .HasMaxLength(200);

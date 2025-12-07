@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -16,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\LibraryWebsite.Service\LibraryWebsite.Service.csproj" />
     <ProjectReference Include="..\LibraryWebsiteRepo\LibraryWebsite.Repository.csproj" />
     <ProjectReference Include="..\LibraryWebsite\LibraryWebsite.Model.csproj" />
   </ItemGroup>

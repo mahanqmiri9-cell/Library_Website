@@ -5,7 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace LibraryWebsite.Api.Services
+namespace LibraryWebsite.Service
 {
     public class UserService : IUserService
     {
@@ -27,7 +27,7 @@ namespace LibraryWebsite.Api.Services
         }
 
 
-        public bool Create(User user)
+        public bool Add(User user)
         {
             
             if (string.IsNullOrWhiteSpace(user.FullName) ||
@@ -59,7 +59,7 @@ namespace LibraryWebsite.Api.Services
         }
 
 
-        public User Get(int id)
+        public User GetById(int id)
         {
             return _repo.GetById(id);
         }
@@ -83,7 +83,7 @@ namespace LibraryWebsite.Api.Services
             var existingUser = _repo.GetById(user.Id);
             if (existingUser == null)
                 throw new Exception("User not found");
-
+                
             
             var allUsers = _repo.GetAll();
             if (allUsers.Any(u => u.Id != user.Id && u.Username == user.Username))
@@ -110,6 +110,7 @@ namespace LibraryWebsite.Api.Services
 
             
             _repo.Update(existingUser);
+            
         }
 
         public bool Login(string username, string password)
@@ -126,6 +127,8 @@ namespace LibraryWebsite.Api.Services
 
             return true; 
         }
+
+
     }
 
 
