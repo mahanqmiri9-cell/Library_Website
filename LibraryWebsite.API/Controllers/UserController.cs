@@ -82,12 +82,13 @@ namespace LibraryWebsite.API
             if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
                 return BadRequest("Username and Password are required");
 
-            bool result = _service.Login(request.Username, request.Password);
-            if (result)
-                return Ok("Login successful");
+            var token = _service.Login(request.Username, request.Password);
+            if (token == null)
+                return Unauthorized("Invalid username or password");
 
-            return Unauthorized("Invalid username or password");
+            return Ok(new { Token = token });
         }
+
 
 
 
