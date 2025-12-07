@@ -1,6 +1,7 @@
 using LibraryWebsite.Repository;
 using LibraryWebsite.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -8,14 +9,16 @@ using System.Text;
 var builder = WebApplication.CreateBuilder(args);
 
 
-builder.Services.AddControllers();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-
-
 builder.Services.AddScoped<IUserService, UserService>();
 
+
+builder.Services.AddControllers();
 
 
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]);
@@ -35,7 +38,6 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         ValidAudience = builder.Configuration["Jwt:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(key)
@@ -43,12 +45,10 @@ builder.Services.AddAuthentication(options =>
 });
 
 
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     c.SwaggerDoc("v1", new OpenApiInfo { Title = "LibraryWebsite API", Version = "v1" });
-
 
     c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -75,14 +75,14 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseAuthentication(); 
+app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
