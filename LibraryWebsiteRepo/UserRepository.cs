@@ -22,9 +22,20 @@ namespace LibraryWebsite.Repository
             _context.Users.Add(user);
             return _context.SaveChanges() > 0;
         }
-        public List<User> GetAll()
+        public List<User> GetAll(int PageNumber , int PageSize)
         {
-             return _context.Users.ToList();
+             return _context.Users
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((PageNumber-1)*PageSize)
+                .Take(PageSize)
+                .Select(u => new User 
+                { 
+                    FullName = u.FullName,
+                    Username = u.Username,
+                    Email = u.Email,
+                    CreatedAt = u.CreatedAt
+                })
+                .ToList();
         }
         public User GetById(int id)
         {

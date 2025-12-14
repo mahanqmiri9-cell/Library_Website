@@ -8,7 +8,7 @@ namespace LibraryWebsite.Service
     {
         bool Add(User user);
         UserGetByIdDTO? GetById(int id);
-        List<UserGetDTO> GetAll(int pageNumber, int pageSize);
+        List<UserGetDTO> GetAll(int PageNumber , int PageSize);
 
         bool Delete(int id);
         void Update(User user);

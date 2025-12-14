@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Azure;
 
 namespace LibraryWebsite.Repository
 {
@@ -12,7 +13,7 @@ namespace LibraryWebsite.Repository
         public interface IUserRepository
         { 
             bool Add(User user);
-            List<User> GetAll();
+            List<User> GetAll(int PageNumber , int PageSize);
             User GetById (int id);
             bool Update(User user);
             bool DeleteById(int id);

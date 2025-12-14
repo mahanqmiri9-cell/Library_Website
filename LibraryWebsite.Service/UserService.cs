@@ -111,10 +111,7 @@ namespace LibraryWebsite.Service
 
         public List<UserGetDTO> GetAll(int pageNumber, int pageSize)
         {
-            return _repo.GetAll()
-                .OrderByDescending(u => u.CreatedAt)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
+            return _repo.GetAll(pageNumber , pageSize)
                 .Select(u => new UserGetDTO
                 {
                     FullName = u.FullName,
@@ -125,8 +122,10 @@ namespace LibraryWebsite.Service
                 .ToList();
         }
 
-        public bool Delete(int id) => _repo.DeleteById(id);
-
+        public bool Delete(int id)
+        { 
+           return _repo.DeleteById(id);
+        }
 
         public void Update(User user)
         {
@@ -134,7 +133,7 @@ namespace LibraryWebsite.Service
             if (existingUser == null)
                 throw new Exception("User not found");
 
-            var allUsers = _repo.GetAll();
+            var allUsers = //
 
             if (allUsers.Any(u => u.Id != user.Id && u.Username == user.Username))
                 throw new Exception("Username already exists");
@@ -160,8 +159,6 @@ namespace LibraryWebsite.Service
                 throw new Exception("Update failed");
 
         }
-
-
 
         public LoginResponseDTO Login(string username, string password)
         {
