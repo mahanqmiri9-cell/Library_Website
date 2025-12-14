@@ -1,5 +1,6 @@
 ﻿using LibraryWebsite.Model;
 using LibraryWebsite.Repository;
+using LibraryWebsite.Service.DTOs;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -72,11 +73,15 @@ namespace LibraryWebsite.Service
                 return false;
             }
 
-            var existingUsers = _repo.GetAll();
-            if (existingUsers.Any(u => u.Username == user.Username))
-                return false;
-            if (existingUsers.Any(u => u.Email == user.Email))
-                return false;
+            if (_repo.UsernameExists(user.Username))
+            {
+                throw new Exception("Username already exists");
+            }
+
+            if (_repo.EmailExists(user.Email))
+            {
+                throw new Exception("Email already exists");
+            }
 
             user.PasswordHash = HashPassword(user.PasswordHash);
             user.IsActive = true;
@@ -88,13 +93,39 @@ namespace LibraryWebsite.Service
 
 
 
-        public User GetById(int id) => _repo.GetById(id);
+        public UserGetByIdDTO? GetById(int id)
+        {
+            var user = _repo.GetById(id);
+            if (user == null)
+                return null;
 
-        public List<User> GetAll() =>
-            _repo.GetAll().OrderByDescending(u => u.CreatedAt).ToList();
+            return new UserGetByIdDTO
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Username = user.Username,
+                Email = user.Email,
+                CreatedAt = user.CreatedAt,
+            };
+        }
+
+        public List<UserGetDTO> GetAll(int pageNumber, int pageSize)
+        {
+            return _repo.GetAll()
+                .OrderByDescending(u => u.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(u => new UserGetDTO
+                {
+                    FullName = u.FullName,
+                    Username = u.Username,
+                    Email = u.Email,
+                    CreatedAt = u.CreatedAt
+                })
+                .ToList();
+        }
 
         public bool Delete(int id) => _repo.DeleteById(id);
-
 
 
         public void Update(User user)
@@ -123,12 +154,16 @@ namespace LibraryWebsite.Service
 
             existingUser.UpdatedAt = DateTime.Now;
 
-            _repo.Update(existingUser);
+
+            var updated = _repo.Update(existingUser);
+            if (!updated)
+                throw new Exception("Update failed");
+
         }
 
 
 
-        public string Login(string username, string password)
+        public LoginResponseDTO Login(string username, string password)
         {
             var user = _repo.GetAll().FirstOrDefault(u => u.Username == username);
             if (user == null)
@@ -138,12 +173,15 @@ namespace LibraryWebsite.Service
             if (user.PasswordHash != hashedPassword)
                 return null;
 
-            return GenerateJwtToken(user);
+            var token = GenerateJwtToken(user);
+
+            return new LoginResponseDTO
+            {
+                Token = token
+            };
         }
 
-        bool? IUserService.Login(string username, string password)
-        {
-            return true;
-        }
+
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using LibraryWebsite.Service;
+using LibraryWebsite.Service.DTOs;
 using LibraryWebsite.Model;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
@@ -28,6 +29,26 @@ namespace LibraryWebsite.API
         }
 
 
+
+        [HttpGet]
+        public IActionResult GetAll(
+            int pageNumber = 1,
+            int pageSize = 10)
+        {
+            var users = _service.GetAll(pageNumber, pageSize);
+            return Ok(users);
+        }
+
+
+
+        [HttpPut]
+        public IActionResult Update(User user)
+        {
+            _service.Update(user);
+            return Ok("User updated");
+        }
+
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -40,34 +61,6 @@ namespace LibraryWebsite.API
 
 
 
-        [HttpGet]
-        public IActionResult GetAll()
-        {
-            var users = _service.GetAll();
-            return Ok(users);
-        }
-
-
-        [HttpPut]
-        public IActionResult Update(User user)
-        {
-            _service.Update(user);
-            return Ok("User updated");
-        }
-
-
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            bool result = _service.Delete(id);
-
-            if (result)
-                return Ok("User deleted");
-
-            return BadRequest("failed");
-        }
-
-
         public class LoginRequest
         {
             public string Username { get; set; }
@@ -77,16 +70,17 @@ namespace LibraryWebsite.API
 
 
         [HttpPost("login")]
-        public IActionResult Login([FromBody] LoginRequest request)
+        public IActionResult Login([FromBody] LoginRequestDTO dto)
         {
-            if (string.IsNullOrWhiteSpace(request.Username) || string.IsNullOrWhiteSpace(request.Password))
+            if (string.IsNullOrWhiteSpace(dto.Username) || string.IsNullOrWhiteSpace(dto.Password))
                 return BadRequest("Username and Password are required");
 
-            var token = _service.Login(request.Username, request.Password);
-            if (token == null)
+            var response = _service.Login(dto.Username, dto.Password);
+            if (response == null)
                 return Unauthorized("Invalid username or password");
 
-            return Ok(new { Token = token });
+            return Ok(response);
+
         }
 
 

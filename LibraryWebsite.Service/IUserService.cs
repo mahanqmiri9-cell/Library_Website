@@ -1,4 +1,5 @@
 ﻿using LibraryWebsite.Model;
+using LibraryWebsite.Service.DTOs;
 using System.Collections.Generic;
 
 namespace LibraryWebsite.Service
@@ -6,11 +7,12 @@ namespace LibraryWebsite.Service
     public interface IUserService
     {
         bool Add(User user);
-        User? GetById(int id);
-        List<User> GetAll();
+        UserGetByIdDTO? GetById(int id);
+        List<UserGetDTO> GetAll(int pageNumber, int pageSize);
+
         bool Delete(int id);
         void Update(User user);
-        bool? Login(string username, string password);
+        LoginResponseDTO Login(string username, string password);
 
     }
 }

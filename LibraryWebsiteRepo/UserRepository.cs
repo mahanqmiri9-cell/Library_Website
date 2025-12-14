@@ -30,10 +30,16 @@ namespace LibraryWebsite.Repository
         {
             return _context.Users.FirstOrDefault(user => user.Id == id) ;
         }
-        public void Update(User user)
-        { 
-            _context.SaveChanges(); //*incorrect*
+
+        public bool Update(User user)
+        {
+            _context.Users.Update(user);
+            return _context.SaveChanges() > 0;
         }
+
+
+
+
         public bool DeleteById(int id)
         {
             var user = _context.Users.FirstOrDefault(user => user.Id == id);
@@ -41,9 +47,19 @@ namespace LibraryWebsite.Repository
             {
                 return false;
             }
-
+                                           //// ina jash to service
             _context.Users.Remove(user);
             return _context.SaveChanges() > 0;
+        }
+
+        public bool UsernameExists(string username)
+        {
+            return _context.Users.Any(u => u.Username == username);
+        }
+
+        public bool EmailExists(string email)
+        {
+            return _context.Users.Any(u => u.Email == email);
         }
     }
 }

@@ -14,8 +14,10 @@ namespace LibraryWebsite.Repository
             bool Add(User user);
             List<User> GetAll();
             User GetById (int id);
-            void Update(User user);
+            bool Update(User user);
             bool DeleteById(int id);
+            bool UsernameExists(string username);
+            bool EmailExists(string email);
         }
 
 }

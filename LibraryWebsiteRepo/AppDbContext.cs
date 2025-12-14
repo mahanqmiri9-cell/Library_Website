@@ -31,7 +31,6 @@ namespace LibraryWebsite.Repository
                       .HasMaxLength(100);
 
                 entity.Property(u => u.PasswordHash)
-                      .IsRequired()
                       .HasMaxLength(500);
 
                 entity.Property(u => u.Email)
