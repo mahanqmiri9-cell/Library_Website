@@ -6,13 +6,15 @@ namespace LibraryWebsite.Service
 {
     public interface IUserService
     {
-        bool Add(User user);
+        UserAddDTO Add(UserAddDTO user);
         UserGetByIdDTO? GetById(int id);
-        List<UserGetDTO> GetAll(int PageNumber , int PageSize);
-
-        bool Delete(int id);
-        void Update(User user);
+        List<BookGetDTO> GetAll(int PageNumber , int PageSize);
+        List<UserGetDTO> GetAllUsers(int pagenumber, int pagesize);
+        User GetByUserName(string username);
+        void Delete(int id);
+        UserUpdateDTO Update(int UserId , UserUpdateDTO dto);
         LoginResponseDTO Login(string username, string password);
+
 
     }
 }

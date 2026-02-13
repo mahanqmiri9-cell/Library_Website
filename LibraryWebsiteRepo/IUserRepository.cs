@@ -12,13 +12,17 @@ namespace LibraryWebsite.Repository
 
         public interface IUserRepository
         { 
-            bool Add(User user);
-            List<User> GetAll(int PageNumber , int PageSize);
-            User GetById (int id);
-            bool Update(User user);
-            bool DeleteById(int id);
+            void Add(User user);
+            List<Book> GetAll(int PageNumber , int PageSize);
+            List<User> GetAllUsers(int pagenumber, int pagesize);
+            User ?GetById (int id);
+            User ?GetByUserName (string userName);
+            void Update(User user);
+            void DeleteById(int id);
             bool UsernameExists(string username);
             bool EmailExists(string email);
+            bool PhoneNumberExists(string phoneNumber);
+            int Save();
         }
 
 }

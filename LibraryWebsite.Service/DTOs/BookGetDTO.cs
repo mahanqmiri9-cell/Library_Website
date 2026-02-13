@@ -1,6 +1,6 @@
-﻿namespace LibraryWebsite.Model
+﻿namespace LibraryWebsite.Service.DTOs
 {
-    public class Book
+    public class BookGetDTO
     {
         public int Id { get; set; }
         public string Title { get; set; } = null!;
@@ -11,7 +11,5 @@
         public string PublishYear { get; set; } = null!;
         public int TotalCopies { get; set; }
         public int AvaillableCopies { get; set; }
-        public DateTime CreatedAt { get; set; }
-
     }
 }

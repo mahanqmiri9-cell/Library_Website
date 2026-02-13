@@ -10,6 +10,7 @@ namespace LibraryWebsite.Repository
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Book> Books { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -23,34 +24,77 @@ namespace LibraryWebsite.Repository
 
 
                 entity.Property(u => u.FullName)
-                      .IsRequired()
-                      .HasMaxLength(200);
+                      .HasMaxLength(100);
 
                 entity.Property(u => u.Username)
                       .IsRequired()
-                      .HasMaxLength(100);
+                      .HasMaxLength(50);
 
                 entity.Property(u => u.PasswordHash)
-                      .HasMaxLength(500);
-
-                entity.Property(u => u.Email)
                       .IsRequired()
                       .HasMaxLength(200);
 
-                entity.Property(u => u.PhoneNumber)
-                      .HasMaxLength(20);
+                entity.Property(u => u.Email)
+                      .IsRequired()
+                      .HasMaxLength(100);
 
-                entity.Property(u => u.Role)
+                entity.Property(u => u.PhoneNumber)
                       .IsRequired()
                       .HasMaxLength(10);
+
+                entity.Property(u => u.Role)
+                      .IsRequired();
 
                 entity.Property(u => u.CreatedAt)
                       .IsRequired();
 
-                entity.Property(u => u.UpdatedAt);
-
                 entity.HasIndex(u => u.Username).IsUnique();
                 entity.HasIndex(u => u.Email).IsUnique();
+                entity.HasIndex(u => u.PhoneNumber).IsUnique();
+            });
+
+            modelBuilder.Entity<Book>(entity =>
+            {
+                entity.ToTable("Books");
+
+                entity.HasKey(u => u.Id);
+
+                entity.Property(u => u.Title)
+                      .IsRequired()   
+                      .HasMaxLength(100);
+
+                entity.Property(u => u.ISBN)
+                      .IsRequired();
+
+                entity.Property(u => u.Categoryid)
+                      .IsRequired()
+                      .HasMaxLength(10);
+
+                entity.Property(u => u.Aythorid)
+                      .IsRequired()
+                      .HasMaxLength(10);
+
+                entity.Property(u => u.Dercription)
+                      .IsRequired()
+                      .HasMaxLength(100);
+
+                entity.Property(u => u.PublishYear)
+                      .IsRequired()
+                      .HasMaxLength(4);
+
+                entity.Property(u => u.TotalCopies)
+                      .IsRequired();
+
+                entity.Property(u => u.AvaillableCopies)
+                      .IsRequired();
+
+                entity.Property(u => u.CreatedAt)
+                      .IsRequired();
+
+                entity.HasIndex(u => u.ISBN).IsUnique();
+
+
+
             });
         }
 

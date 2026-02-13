@@ -1,8 +1,11 @@
-﻿using LibraryWebsite.Service;
+﻿using LibraryWebsite.Model;
+using LibraryWebsite.Service;
 using LibraryWebsite.Service.DTOs;
-using LibraryWebsite.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace LibraryWebsite.API
 {
@@ -16,39 +19,70 @@ namespace LibraryWebsite.API
         {
             _service = service;
         }
-
-
+        [Authorize]
+        [Authorize(Roles ="Admin")]
         [HttpPost]
-        public IActionResult Creat(User user)
+        public IActionResult Creat(UserAddDTO user)
         {
-            bool result = _service.Add(user);
-            if (result)
-                return Ok("User created successfully");
+            try
+            {
+                _service.Add(user);
+                return Ok("User creat successfully");
+            }
 
-            return BadRequest("Failed");
+            catch(ApplicationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            
+
+        }
+        [Authorize("all-users")]
+        [Authorize(Roles = "Admin")]
+        [HttpGet]
+        public IActionResult GetAllUsers(
+            int pagenumber = 1,
+            int pagesize = 10)
+        {
+            var Users = _service.GetAllUsers(pagenumber, pagesize);
+            return Ok(Users);
         }
 
-
-
-        [HttpGet]
+        [HttpGet("books")]
         public IActionResult GetAll(
             int pageNumber = 1,
             int pageSize = 10)
         {
-            var users = _service.GetAll(pageNumber, pageSize);
-            return Ok(users);
+            var Books = _service.GetAll(pageNumber, pageSize);
+            return Ok(Books);
         }
 
 
-
-        [HttpPut]
-        public IActionResult Update(User user)
+        [Authorize]
+        [HttpPut("me")]
+        public IActionResult Update(UserUpdateDTO dto)
         {
-            _service.Update(user);
-            return Ok("User updated");
+            var UserIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (UserIdClaim == null)
+            {
+                return Unauthorized();
+            }
+
+            int UserId = int.Parse(UserIdClaim.Value);
+
+            try
+            {
+                _service.Update(UserId, dto);
+                return Ok("Your profile Updated successfully");
+            }
+
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
-
-
+        [Authorize]
+        [Authorize(Roles ="Admin")]
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
@@ -61,14 +95,9 @@ namespace LibraryWebsite.API
 
 
 
-        public class LoginRequest
-        {
-            public string Username { get; set; }
-            public string Password { get; set; }
-        }
 
 
-
+        
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginRequestDTO dto)
         {

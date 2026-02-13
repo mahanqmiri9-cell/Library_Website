@@ -9,6 +9,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Security.Cryptography;
+using System.Security.Principal;
 using System.Text;
 
 namespace LibraryWebsite.Service
@@ -34,12 +35,14 @@ namespace LibraryWebsite.Service
             }
         }
 
-
         private string GenerateJwtToken(User user)
         {
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_config["Jwt:Key"])
-            );
+            Encoding.UTF8.GetBytes(
+                _config["Jwt:Key"] ?? throw new Exception("JWT Key not found")
+            )
+        );
+
 
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
@@ -61,43 +64,76 @@ namespace LibraryWebsite.Service
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
+        public string role = "User";
 
-
-        public bool Add(User user)
+        public UserAddDTO Add(UserAddDTO dto)
         {
-            if (string.IsNullOrWhiteSpace(user.FullName) ||
-                string.IsNullOrWhiteSpace(user.Username) ||
-                string.IsNullOrWhiteSpace(user.Email) ||
-                string.IsNullOrWhiteSpace(user.PasswordHash))
+            
+
+            if (string.IsNullOrWhiteSpace(dto.FullName) ||
+                string.IsNullOrWhiteSpace(dto.UserName) ||
+                string.IsNullOrWhiteSpace(dto.Email) ||
+                string.IsNullOrWhiteSpace(dto.Password) ||
+                string.IsNullOrWhiteSpace(dto.PhoneNumber))
+
             {
-                return false;
+                throw new ApplicationException("invalid input!");
             }
 
-            if (_repo.UsernameExists(user.Username))
+            if (_repo.UsernameExists(dto.UserName))
             {
-                throw new Exception("Username already exists");
+                throw new ApplicationException("Username already exists");
             }
 
-            if (_repo.EmailExists(user.Email))
+            if (_repo.EmailExists(dto.Email))
             {
-                throw new Exception("Email already exists");
+                throw new ApplicationException("Email already exists");
             }
 
-            user.PasswordHash = HashPassword(user.PasswordHash);
-            user.IsActive = true;
-            user.Role = "user";
-            user.CreatedAt = DateTime.Now;
+            if (_repo.PhoneNumberExists(dto.PhoneNumber))
+            {
+                throw new ApplicationException("PhoneNumber is already exists");
+            }
 
-            return _repo.Add(user);
+            if (dto.UserName == "AdminLW" && dto.Password == "Ma@123456#")
+            {
+                role = "Admin";
+            }
+
+                var user = new User
+                {
+                    FullName = dto.FullName,
+                    Username = dto.UserName,
+                    PasswordHash = HashPassword(dto.Password),
+                    Email = dto.Email,
+                    PhoneNumber = dto.PhoneNumber,
+                    IsActive = true,
+                    Role = role,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = DateTime.Now,
+
+                };
+
+
+
+            _repo.Add(user);
+            _repo.Save();
+            return new UserAddDTO
+            {
+                FullName = user.FullName,
+                UserName = user.Username,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+            };
         }
 
 
 
-        public UserGetByIdDTO? GetById(int id)
+        public UserGetByIdDTO GetById(int id)
         {
             var user = _repo.GetById(id);
             if (user == null)
-                return null;
+                throw new Exception("User Not Found");
 
             return new UserGetByIdDTO
             {
@@ -109,66 +145,117 @@ namespace LibraryWebsite.Service
             };
         }
 
-        public List<UserGetDTO> GetAll(int pageNumber, int pageSize)
+        public List<BookGetDTO> GetAll(int pageNumber, int pageSize)
         {
             return _repo.GetAll(pageNumber , pageSize)
-                .Select(u => new UserGetDTO
+                .Select(u => new BookGetDTO
                 {
-                    FullName = u.FullName,
-                    Username = u.Username,
-                    Email = u.Email,
-                    CreatedAt = u.CreatedAt
+                    Title = u.Title,
+                    ISBN = u.ISBN,
+                    Categoryid = u.Categoryid,
+                    Aythorid = u.Aythorid,
+                    Dercription = u.Dercription,
+                    PublishYear = u.PublishYear,
+                    TotalCopies = u.TotalCopies,
+                    AvaillableCopies = u.AvaillableCopies
                 })
                 .ToList();
         }
 
-        public bool Delete(int id)
-        { 
-           return _repo.DeleteById(id);
+        public List<UserGetDTO> GetAllUsers(int pagenumber , int pagesize)
+        {
+            return _repo.GetAllUsers(pagenumber , pagesize)
+                .Select(u => new UserGetDTO
+                {
+                    FullName = u.FullName,
+                    UserName = u.Username,
+                    Email = u.Email,
+                    PhoneNumber = u.PhoneNumber,
+                    IsActive = u.IsActive,
+                    CreatedAt = u.CreatedAt,
+                    UpdatedAt = u.UpdatedAt
+                })
+                .ToList();
         }
 
-        public void Update(User user)
+        public void Delete(int id)
+        { 
+           _repo.DeleteById(id);
+           _repo.Save();
+        }
+
+        public UserUpdateDTO Update(int UserId , UserUpdateDTO dto)
         {
-            var existingUser = _repo.GetById(user.Id);
-            if (existingUser == null)
+            var User = _repo.GetById(UserId);
+            if (User == null)
+            {
                 throw new Exception("User not found");
+            }
 
-            var allUsers = //
+            if (_repo.UsernameExists(User.Username))
+                {
+                    throw new Exception("Username is already exists");
+                }
 
-            if (allUsers.Any(u => u.Id != user.Id && u.Username == user.Username))
-                throw new Exception("Username already exists");
+            if (_repo.EmailExists(User.Email))
+            {
+                throw new Exception("Email is already exists");
+            }
 
-            if (allUsers.Any(u => u.Id != user.Id && u.Email == user.Email))
-                throw new Exception("Email already exists");
+            if (_repo.PhoneNumberExists(User.PhoneNumber))
+            {
+                throw new Exception("PhoneNumber is already exists");
+            }
 
-            existingUser.FullName = user.FullName;
-            existingUser.Username = user.Username;
-            existingUser.Email = user.Email;
-            existingUser.PhoneNumber = user.PhoneNumber;
-            existingUser.IsActive = user.IsActive;
-            existingUser.Role = user.Role;
+            if (!string.IsNullOrWhiteSpace(dto.FullName))
+            {
+                User.FullName = dto.FullName;
+            }
 
-            if (!string.IsNullOrWhiteSpace(user.PasswordHash))
-                existingUser.PasswordHash = HashPassword(user.PasswordHash);
+            if (!string.IsNullOrWhiteSpace(dto.UserName))
+            {
+                User.Username = dto.UserName;
+            }
 
-            existingUser.UpdatedAt = DateTime.Now;
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+            {
+                User.Email = dto.Email;
+            }
 
+            if (!string.IsNullOrWhiteSpace(dto.PhoneNumber))
+            {
+                User.PhoneNumber = dto.PhoneNumber;
+            }
 
-            var updated = _repo.Update(existingUser);
-            if (!updated)
-                throw new Exception("Update failed");
+            if (!string.IsNullOrWhiteSpace(dto.Password))
+            {
+                User.PasswordHash = HashPassword(dto.Password);
+            }
+
+            User.UpdatedAt = DateTime.Now;
+            _repo.Update(User);
+            _repo.Save();
+
+            return new UserUpdateDTO
+            {
+                FullName = User.FullName,
+                UserName = User.Username,
+                Email = User.Email,
+                PhoneNumber = User.PhoneNumber
+            };
+
 
         }
 
         public LoginResponseDTO Login(string username, string password)
         {
-            var user = _repo.GetAll().FirstOrDefault(u => u.Username == username);
+            var user = _repo.GetByUserName(username);
             if (user == null)
-                return null;
+                throw new Exception("Invalid Username or Password");
 
             var hashedPassword = HashPassword(password);
             if (user.PasswordHash != hashedPassword)
-                return null;
+                throw new Exception("Invalide Username or Password");
 
             var token = GenerateJwtToken(user);
 
@@ -178,7 +265,9 @@ namespace LibraryWebsite.Service
             };
         }
 
-
-
+        public User GetByUserName(string username)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
